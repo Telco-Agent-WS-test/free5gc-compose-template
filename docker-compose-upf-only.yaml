@@ -1,0 +1,17 @@
+version: "3.8"
+
+# UPF 単独デプロイ用（新スライス専用、別 EC2 で稼働）
+# 既存 C-Plane とは PFCP (8805) + GTP-U (2152) で通信
+
+services:
+  free5gc-upf-v2x:
+    container_name: upf-v2x
+    image: free5gc/upf:v4.2.1
+    command: bash -c "./upf-iptables.sh && ./upf -c ./config/upf-v2x-cfg.yaml"
+    volumes:
+      - ./config/upf-v2x-cfg.yaml:/free5gc/config/upf-v2x-cfg.yaml
+      - ./config/upf-iptables.sh:/free5gc/upf-iptables.sh
+    cap_add:
+      - NET_ADMIN
+    network_mode: "host"  # ホスト NIC を直接使用（別 EC2 SMF から到達可能にするため）
+    privileged: true
